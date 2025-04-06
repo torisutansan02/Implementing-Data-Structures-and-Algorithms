@@ -1,14 +1,10 @@
 from abc import ABC, abstractmethod
 
-# Node class (same as ListNode in LeetCode)
-class Node:
-    def __init__(self, val):
-        self.val = val
-        self.next = None
-
-
 # Abstract interface for Linked List
 class AbstractLinkedList(ABC):
+    @abstractmethod
+    def get(self, index): pass
+
     @abstractmethod
     def append(self, value): pass
 
@@ -42,12 +38,31 @@ class AbstractLinkedList(ABC):
     @abstractmethod
     def __str__(self): pass
 
+# Node class (same as ListNode in LeetCode)
+class Node:
+    def __init__(self, val):
+        self.val = val
+        self.next = None
 
 # Singly Linked List with LeetCode-style methods
 class SinglyLinkedList(AbstractLinkedList):
     def __init__(self):
         self.head = None
         self.size = 0
+    
+    def get(self, index):
+        if index < 0 or index >= self.size:
+            return None
+        
+        curr = self.head
+
+        i = 0
+        while i < index:
+            curr = curr.next
+            i += 1
+        
+        return curr.val
+
 
     def append(self, val):
         value = Node(val)
@@ -185,6 +200,14 @@ class SinglyLinkedList(AbstractLinkedList):
                 return False
             left = left.next
             right = right.next
+        
+        curr = prev
+        prev = None
+        while curr:
+            temp = curr.next
+            curr.next = prev
+            prev = curr
+            curr = temp
         
         return True
     

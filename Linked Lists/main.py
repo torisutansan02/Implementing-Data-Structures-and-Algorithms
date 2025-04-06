@@ -32,6 +32,7 @@ ll.append(2)
 ll.prepend(0)
 ll.append(3)
 ll.insert(2, 3)
+print("Get index 2:", ll.get(2))
 print("Original list:", ll, "\n")
 
 ll.delete(1)
