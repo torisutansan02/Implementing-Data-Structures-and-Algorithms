@@ -1,245 +1,111 @@
 from abc import ABC, abstractmethod
+from collections import deque
 
-# Abstract interface for Linked List
-class AbstractLinkedList(ABC):
+# Abstract Binary Tree Interface
+class AbstractBinaryTree(ABC):
     @abstractmethod
-    def get(self, index): pass
-
-    @abstractmethod
-    def append(self, value): pass
+    def insert(self, val): pass
 
     @abstractmethod
-    def prepend(self, value): pass
+    def delete(self, val): pass
 
     @abstractmethod
-    def insert(self, index, value): pass
+    def search(self, val): pass
 
     @abstractmethod
-    def delete(self, index): pass
+    def inorder(self, root): pass
 
     @abstractmethod
-    def reverseList(self, head): pass
+    def preorder(self, root): pass
 
     @abstractmethod
-    def findMiddle(self, head): pass
+    def postorder(self, root): pass
 
     @abstractmethod
-    def mergeTwoSortedLists(self, list1, list2): pass
-
-    @abstractmethod
-    def removeNthFromEnd(self, head, n): pass
-
-    @abstractmethod
-    def isPalindrome(self, head): pass
-
-    @abstractmethod
-    def detectCycle(self, head): pass
+    def levelOrder(self, root): pass
 
     @abstractmethod
     def __str__(self): pass
 
-# Node class (same as ListNode in LeetCode)
-class Node:
+# Node class (TreeNode for LeetCode compatibility)
+class TreeNode:
     def __init__(self, val):
         self.val = val
-        self.next = None
+        self.left = None
+        self.right = None
 
-# Singly Linked List with LeetCode-style methods
-class SinglyLinkedList(AbstractLinkedList):
+# BinaryTree with LeetCode-style methods
+class BinaryTree(AbstractBinaryTree):
     def __init__(self):
-        self.head = None
-        self.size = 0
-    
-    def get(self, index):
-        if index < 0 or index >= self.size:
-            return None
-        
-        curr = self.head
+        self.root = None
 
-        i = 0
-        while i < index:
-            curr = curr.next
-            i += 1
-        
-        return curr.val
-
-
-    def append(self, val):
-        value = Node(val)
-        if not self.head:
-            self.head = value
-            self.size += 1
-            return
-        curr = self.head
-        while curr.next:
-            curr = curr.next
-        curr.next = value
-        self.size += 1
-
-    def prepend(self, val):
-        value = Node(val)
-        value.next = self.head
-        self.head = value
-        self.size += 1
-
-    def insert(self, index, val):
-        if index < 0 or index > self.size:
-            return
-        
-        if index == 0:
-            self.prepend(val)
-            return
-
-        value = Node(val)
-        
-        curr = self.head
-
-        i = 0
-        while i < index - 1:
-            curr = curr.next
-            i += 1
-
-        value.next = curr.next
-        curr.next = value
-        self.size += 1
-
-    def delete(self, index):
-        if index < 0 or index >= self.size:
-            return
-        if index == 0:
-            self.head = self.head.next
-            self.size -= 1
-            return
-        curr = self.head
-        i = 0
-        while i < index - 1:
-            curr = curr.next
-            i += 1
-        curr.next = curr.next.next
-        self.size -= 1
-
-    # LeetCode-style reverseList(head)
-    def reverseList(self, head):
-        prev = None
-        curr = head
-        while curr:
-            nxt = curr.next
-            curr.next = prev
-            prev = curr
-            curr = nxt
-        return prev
-
-    # LeetCode-style findMiddle(head)
-    def findMiddle(self, head):
-        slow = fast = head
-        while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
-        return slow
-
-    # LeetCode-style hasCycle(head)
-    def hasCycle(self, head):
-        slow = fast = head
-        while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
-            if slow == fast:
-                return True
-        return False
-
-    # LeetCode-style mergeTwoSortedLists(list1, list2)
-    def mergeTwoSortedLists(self, list1, list2):
-        dummy = Node(-1)
-        tail = dummy
-
-        while list1 and list2:
-            if list1.val < list2.val:
-                tail.next = list1
-                list1 = list1.next
+    def insert(self, val):
+        def _insert(node, val):
+            if not node:
+                return TreeNode(val)
+            if val < node.val:
+                node.left = _insert(node.left, val)
             else:
-                tail.next = list2
-                list2 = list2.next
-            tail = tail.next
+                node.right = _insert(node.right, val)
+            return node
+        self.root = _insert(self.root, val)
 
-        tail.next = list1 if list1 else list2
-        return dummy.next
+    def delete(self, val):
+        def _delete(node, val):
+            if not node:
+                return None
+            if val < node.val:
+                node.left = _delete(node.left, val)
+            elif val > node.val:
+                node.right = _delete(node.right, val)
+            else:
+                if not node.left:
+                    return node.right
+                if not node.right:
+                    return node.left
 
-    def removeNthFromEnd(self, head, n):
-        dummy = Node(0)
-        dummy.next = head
-        slow = fast = dummy
+                # Find inorder successor
+                succ = node.right
+                while succ.left:
+                    succ = succ.left
+                node.val = succ.val
+                node.right = _delete(node.right, succ.val)
+            return node
 
-        i = 0
-        while i < n:
-            fast = fast.next
-            i += 1
-        
-        while fast.next:
-            slow = slow.next
-            fast = fast.next
-        
-        slow.next = slow.next.next
-        return dummy.next
-    
-    def isPalindrome(self, head):
-        slow = fast = head
-        while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
-        
-        prev = None
-        while slow:
-            temp = slow.next
-            slow.next = prev
-            prev = slow
-            slow = temp
+        self.root = _delete(self.root, val)
 
-        left, right = head, prev
-        while right:
-            if left.val != right.val:
+    def search(self, val):
+        def _search(node, val):
+            if not node:
                 return False
-            left = left.next
-            right = right.next
-        
-        curr = prev
-        prev = None
-        while curr:
-            temp = curr.next
-            curr.next = prev
-            prev = curr
-            curr = temp
-        
-        return True
-    
-    def detectCycle(self, head):
-        slow = fast = head
+            if node.val == val:
+                return True
+            return _search(node.left, val) or _search(node.right, val)
 
-        while fast and fast.next:
-            slow = slow.next
-            fast = fast.next.next
-            if slow == fast:
-                break
+        return _search(self.root, val)
 
-        if fast == None:
-            return None
-        
-        slow = head
-        while slow != fast:
-            slow = slow.next
-            fast = fast.next
-        
-        return slow
+    def inorder(self, root):
+        return self.inorder(root.left) + [root.val] + self.inorder(root.right) if root else []
 
-    # Cycle-safe print
+    def preorder(self, root):
+        return [root.val] + self.preorder(root.left) + self.preorder(root.right) if root else []
+
+    def postorder(self, root):
+        return self.postorder(root.left) + self.postorder(root.right) + [root.val] if root else []
+
+    def levelOrder(self, root):
+        if not root:
+            return []
+        result = []
+        queue = deque([root])
+        while queue:
+            node = queue.popleft()
+            result.append(node.val)
+            if node.left:
+                queue.append(node.left)
+            if node.right:
+                queue.append(node.right)
+        return result
+
     def __str__(self):
-        values = []
-        curr = self.head
-        visited = set()
-        while curr:
-            if id(curr) in visited:
-                values.append("(cycle)")
-                break
-            visited.add(id(curr))
-            values.append(str(curr.val))
-            curr = curr.next
-        return "[" + ", ".join(values) + "]"
+        return str(self.levelOrder(self.root))
