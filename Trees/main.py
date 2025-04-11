@@ -41,7 +41,7 @@ def main():
     serialized = tree.serialize(root)
     print("Serialized:", serialized)
     deserialized = tree.deserialize(serialized)
-    print("Deserialized Inorder:", tree.inorderTraversal(deserialized))
+    print("Deserialized:", tree.levelOrderTraversal(deserialized))
 
     # === Binary Search Tree Sample ===
     bst = None

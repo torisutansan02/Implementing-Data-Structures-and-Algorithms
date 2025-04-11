@@ -221,7 +221,10 @@ class BinaryTree(AbstractBinaryTree):
         return left or right
 
     def countNodes(self, root):
-        return 0 if not root else 1 + self.countNodes(root.left) + self.countNodes(root.right)
+        if not root:
+            return 0
+        
+        return 1 + self.countNodes(root.left) + self.countNodes(root.right)
 
     def countLeaves(self, root):
         if not root:
@@ -276,7 +279,10 @@ class BinaryTree(AbstractBinaryTree):
     def searchBST(self, root, val):
         if not root or root.val == val:
             return root
-        return self.searchBST(root.left, val) if val < root.val else self.searchBST(root.right, val)
+        if val < root.val:
+            return self.searchBST(root.left, val)
+        else:
+            return self.searchBST(root.right, val)
 
     def lowestCommonAncestorBST(self, root, p, q):
         if not root:
@@ -290,35 +296,46 @@ class BinaryTree(AbstractBinaryTree):
     # === Advanced Operations ===
     def serialize(self, root):
         if not root:
-            return []
+            return ""
+
         result = []
         queue = deque([root])
+
         while queue:
             node = queue.popleft()
             if node:
-                result.append(node.val)
+                result.append(str(node.val))
                 queue.append(node.left)
                 queue.append(node.right)
             else:
-                result.append(None)
-        return result
+                result.append("null")
+
+        return ', '.join(result)
 
     def deserialize(self, data):
         if not data:
             return None
-        root = TreeNode(data[0])
+
+        nodes = data.split(', ')
+        root = TreeNode(int(nodes[0]))
         queue = deque([root])
         i = 1
-        while queue and i < len(data):
+
+        while queue:
             node = queue.popleft()
-            if data[i] is not None:
-                node.left = TreeNode(data[i])
+
+            # Left child
+            if nodes[i] != "null":
+                node.left = TreeNode(int(nodes[i]))
                 queue.append(node.left)
             i += 1
-            if i < len(data) and data[i] is not None:
-                node.right = TreeNode(data[i])
+
+            # Right child
+            if nodes[i] != "null":
+                node.right = TreeNode(int(nodes[i]))
                 queue.append(node.right)
             i += 1
+
         return root
 
     def invertTree(self, root):
